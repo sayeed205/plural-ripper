@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>My Chrome Extension</title>
+        <link rel="stylesheet" href="popup.css" />
+    </head>
+    <body>
+        <div id="app">
+            <p id="header"></p>
+
+            <!-- Progress bar for downloading the connection details -->
+            <div class="progress">
+                <div id="progress" class="progress__bar"></div>
+            </div>
+
+            <div class="button-container">
+                <button id="download" class="button">Get Links</button>
+            </div>
+
+            <!-- Add cancel button -->
+
+            <hr class="divider" />
+
+            <p class="subtitle">
+                Developed by
+                <code>
+                    <a href="https://github.com/sayeed205" target="_blank">
+                        SAYED AHMED
+                    </a>
+                </code>
+            </p>
+        </div>
+
+        <script src="popup.js"></script>
+
+        <!--
+      This HTML file opens when you click on icon from the toolbar.
+
+      To begin the development, run `npm run watch`.
+      To create a production bundle, use `npm run build`.
+    --></body>
+</html>

@@ -1,0 +1,44 @@
+{
+    "name": "plural-ripper",
+    "version": "0.1.0",
+    "description": "A simple chrome extension to download courses from https://pluralsight.com",
+    "scripts": {
+        "dev": "webpack --mode=development --watch --config config/webpack.config.js",
+        "build": "webpack --mode=production --config config/webpack.config.js",
+        "pack": "node pack.js",
+        "repack": "npm run build && npm run pack",
+        "format": "prettier --write --ignore-unknown \"{config,public,src}/**/*.{html,css,js,ts,json}\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sayeed205/plural-ripper.git"
+    },
+    "keywords": [
+        "chrome-extension",
+        "ripper",
+        "download",
+        "courses",
+        "learning",
+        "education"
+    ],
+    "author": {
+        "name": "Sayed Ahmed",
+        "email": "sayeed205@gmail.com"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/sayeed205/plural-ripper/issues"
+    },
+    "homepage": "https://github.com/sayeed205/plural-ripper#readme",
+    "devDependencies": {
+        "adm-zip": "^0.5.10",
+        "copy-webpack-plugin": "^11.0.0",
+        "css-loader": "^6.7.3",
+        "file-loader": "^6.2.0",
+        "mini-css-extract-plugin": "^2.7.5",
+        "prettier": "^2.8.8",
+        "webpack": "^5.82.1",
+        "webpack-cli": "^5.1.1",
+        "webpack-merge": "^5.8.0"
+    }
+}
