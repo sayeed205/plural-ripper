@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "Node16",
+        "esModuleInterop": true,
+        "target": "es6",
+        "moduleResolution": "node16",
+        "outDir": "./bin",
+        "sourceMap": true,
+        "rootDir": "src",
+        "strict": true,
+        "typeRoots": ["node_modules/@types", "src/@types"],
+        "resolveJsonModule": true
+    },
+    "ts-node": {
+        "transpileOnly": true,
+        "files": true,
+        "experimentalResolver": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}
