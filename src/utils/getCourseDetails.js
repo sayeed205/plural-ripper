@@ -37,9 +37,11 @@ const getClipUrl = async clipId => {
     const lastUpdated = resJson?.updatedOn;
     const modules = [];
 
-    for (const module of resJson?.modules) {
+    for (let i = 0; i < resJson?.modules.length; i++) {
+        const module = resJson.modules[i];
         const clips = [];
-        for (const clip of module?.clips) {
+        for (let j = 0; j < module?.clips.length; j++) {
+            const clip = module.clips[j];
             const title = clip?.title;
             const clipId = clip?.clipId;
             const url = await getClipUrl(clipId);
@@ -48,12 +50,18 @@ const getClipUrl = async clipId => {
                 url,
             });
             await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Log the number of items left in the loop
+            console.log(`Items left: ${module.clips.length - j - 1}`);
         }
 
         modules.push({
             title: module?.title,
             clips,
         });
+
+        // Log the number of items left in the loop
+        console.log(`Modules left: ${resJson.modules.length - i - 1}`);
     }
 
     const courseData = {

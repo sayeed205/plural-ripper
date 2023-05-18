@@ -1,8 +1,9 @@
-#!/user/bin/env node
+#!/usr/bin/env node
 
 import { program } from 'commander';
 import figlet from 'figlet';
 import mainPrompt from './prompts/main.prompt.js';
+import downloadCourseVideos from './utils/download.js';
 
 const banner = figlet.textSync('Plural Ripper', {
     font: 'Standard',
@@ -13,7 +14,7 @@ const banner = figlet.textSync('Plural Ripper', {
 });
 console.log(banner);
 
-program.version('0.1.0');
+program.version('0.2.0');
 program
     .option(
         '-j, --json <json>',
@@ -22,7 +23,8 @@ program
     .option('-o, --output <output>', 'Output directory path')
     .description('Download courses from https://pluralsight.com/')
     .action(options => {
-        console.log(options);
+        const { json, output } = options;
+        downloadCourseVideos(json, output);
     });
 
 if (process.argv.length > 2) {

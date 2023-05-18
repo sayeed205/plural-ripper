@@ -25,21 +25,6 @@ export default async () => {
     ]);
 
     const { json, output } = ans;
-    // check if json file exists and is valid
-    if (!fs.existsSync(json)) {
-        console.log('JSON file does not exist');
-        return process.exit(1);
-    }
 
-    // check if output directory exists else create it
-    if (!fs.existsSync(output)) {
-        fs.mkdirSync(output, { recursive: true });
-    }
-
-    // read json file
-    const jsonData = fs.readFileSync(json, 'utf-8');
-
-    // parse json data
-    const course = JSON.parse(jsonData);
-    download(course, output);
+    download(json, output);
 };
