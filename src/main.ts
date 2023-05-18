@@ -14,6 +14,11 @@ const banner = figlet.textSync('Plural Ripper', {
 });
 console.log(banner);
 
+interface Options {
+    json: string;
+    output: string;
+}
+
 program.version('0.2.0');
 program
     .option(
@@ -22,7 +27,7 @@ program
     )
     .option('-o, --output <output>', 'Output directory path')
     .description('Download courses from https://pluralsight.com/')
-    .action(options => {
+    .action((options: Options) => {
         const { json, output } = options;
         downloadCourseVideos(json, output);
     });

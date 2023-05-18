@@ -38,6 +38,7 @@
     "homepage": "https://github.com/sayeed205/plural-ripper#readme",
     "devDependencies": {
         "@types/cli-progress": "^3.11.0",
+        "@types/commander": "^2.12.2",
         "@types/figlet": "^1.5.6",
         "@types/inquirer": "^9.0.3",
         "rimraf": "^4.4.1",
