@@ -16,8 +16,6 @@ Alternatively, you can use `npx` to run the tool without installing it globally:
 npx plural-ripper
 ```
 
-![](https://i.imgur.com/5ZQ3Z3M.png)
-
 ## Usage
 
 To use Plural Ripper, follow these steps:
