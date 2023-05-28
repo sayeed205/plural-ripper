@@ -2,8 +2,7 @@ import axios from 'axios';
 import { Presets, SingleBar } from 'cli-progress';
 import fs from 'fs';
 import path from 'path';
-import { Clip, Course, Module } from '../types/Course.js';
-
+import { Course } from '../types/Course.js';
 function sanitizeFilename(filename: string): string {
     return filename.replace(/[<>:"/\\|?*]/g, '');
 }
@@ -27,16 +26,38 @@ function calculateDownloadSpeed(
     }
 }
 
-async function downloadFile(url: string, filePath: string): Promise<void> {
+async function downloadFile(
+    url: string,
+    filePath: string,
+    progressBar: SingleBar
+): Promise<void> {
     const response = await axios.get(url, { responseType: 'stream' });
 
     const writer = fs.createWriteStream(filePath);
     response.data.pipe(writer);
 
+    let downloadedBytes = 0;
+    const startTime = Date.now();
+
     return new Promise<void>((resolve, reject) => {
         writer.on('finish', resolve);
         writer.on('error', reject);
+        response.data.on('data', (chunk: Buffer) => {
+            downloadedBytes += chunk.length;
+            progressBar.update(downloadedBytes, {
+                speed: calculateDownloadSpeed(
+                    downloadedBytes,
+                    startTime,
+                    Date.now()
+                ),
+            });
+        });
     });
+}
+
+async function getFileSize(url: string): Promise<number> {
+    const response = await axios.head(url);
+    return Number(response.headers['content-length']);
 }
 
 export default async function downloadCourseVideos(
@@ -58,8 +79,8 @@ export default async function downloadCourseVideos(
         return process.exit(1);
     }
 
-    const module: Module = course.modules[0];
-    const clip: Clip = module.clips[0];
+    const module = course.modules[0];
+    const clip = module.clips[0];
 
     try {
         const response = await axios.head(clip.url);
@@ -76,30 +97,53 @@ export default async function downloadCourseVideos(
         return process.exit(1);
     }
 
+    let totalFileSize = 0;
+    console.log('Calculating total course size...');
+    for (const module of course.modules) {
+        for (const clip of module.clips) {
+            totalFileSize += await getFileSize(clip.url);
+        }
+    }
+    console.log(
+        `Total course size: ${
+            totalFileSize < 1024
+                ? `${totalFileSize} bytes`
+                : totalFileSize < 1024 * 1024
+                ? `${(totalFileSize / 1024).toFixed(2)} KB`
+                : totalFileSize < 1024 * 1024 * 1024
+                ? `${(totalFileSize / (1024 * 1024)).toFixed(2)} MB`
+                : `${(totalFileSize / (1024 * 1024 * 1024)).toFixed(2)} GB`
+        }\n`
+    );
+
     const progressBar = new SingleBar(
         {
-            format: 'Downloading {module} - {fileName} | {bar} | {percentage}% | {speed} | ETA: {eta}s',
+            format: '{module}/{fileName} | {bar} | {percentage}% | {speed} | ETA: {eta}s',
             barCompleteChar: '\u2588',
             barIncompleteChar: '\u2591',
             hideCursor: true,
+            etaBuffer: 50, // Adjust the etaBuffer for a smoother ETA calculation
         },
         Presets.shades_classic
     );
 
-    progressBar.start(course.modules.length, 0, {
-        speed: '0.00 KB/s',
+    progressBar.start(0, 0, {
+        speed: '0.00 B/s',
         module: '',
         fileName: '',
     });
 
+    progressBar.setTotal(totalFileSize);
+
     for (let i = 0; i < course.modules.length; i++) {
-        const module: Module = course.modules[i];
+        const module = course.modules[i];
+
         const moduleDirectory = path.join(
             dir,
             sanitizeFilename(
                 `${course.courseTitle} by ${course.courseAuthors} - Updated ${course.lastUpdated}`
             ),
-            sanitizeFilename(`${i + 1} - ${module.title}`)
+            `${i + 1} - ${sanitizeFilename(module.title)}`
         );
 
         try {
@@ -112,41 +156,24 @@ export default async function downloadCourseVideos(
         }
 
         for (let j = 0; j < module.clips.length; j++) {
-            const clip: Clip = module.clips[j];
+            const clip = module.clips[j];
             const fileName = `${j + 1} - ${sanitizeFilename(clip.title)}.mp4`;
             const filePath = path.join(moduleDirectory, fileName);
 
-            progressBar.update(i, {
+            progressBar.update(0, {
                 module: module.title,
                 fileName,
             });
 
             try {
-                const startTime = Date.now();
-                await downloadFile(clip.url, filePath);
-                const downloadedBytes = fs.statSync(filePath).size;
-                progressBar.increment({
-                    speed: calculateDownloadSpeed(
-                        downloadedBytes,
-                        startTime,
-                        Date.now()
-                    ),
-                });
+                const fileSize = await getFileSize(clip.url);
+                progressBar.setTotal(fileSize);
+                await downloadFile(clip.url, filePath, progressBar);
+                progressBar.update(0, { speed: '0.00 B/s' }); // Reset speed for the next URL
             } catch (error) {
-                if (axios.isAxiosError(error)) {
-                    // hasExpiredLinks = true;
-                    console.error(
-                        '\nLinks are expired. Please obtain a new JSON file with valid URLs.'
-                    );
-                    break;
-                }
                 console.error(`Failed to download file: ${filePath}`, error);
             }
         }
-
-        // if (hasExpiredLinks) {
-        //     break;
-        // }
     }
 
     progressBar.stop();

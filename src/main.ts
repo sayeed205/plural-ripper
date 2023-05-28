@@ -19,7 +19,7 @@ interface Options {
     output: string;
 }
 
-program.version('0.2.0');
+program.version('0.3.0');
 program
     .option(
         '-j, --json <json>',
